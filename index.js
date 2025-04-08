@@ -28,13 +28,13 @@ app.get('/', (req, res) => {
   console.log('Recebeu requisição GET para a rota /');
   res.send('Hello World!');
 });
-app.post('/teste', (req, res) => {
-    console.log('Rota POST /teste acionada');
-    res.send('Funcionando!');
-  });
-  
 
-app.post('/financeiro', (req, res) => {
+app.post('/teste', (req, res) => {
+  console.log('Rota POST /teste acionada');
+  res.send('Funcionando!');
+});
+
+app.post('/financeiro', async (req, res) => {
   console.log('ENTROU NA ROTA FINANCEIRO!!!');
   console.log('----------------------------------------');
   console.log('Recebeu requisição POST para a rota /financeiro');
@@ -51,23 +51,21 @@ app.post('/financeiro', (req, res) => {
 
   const financeiro = new Financeiro({ data, descricao, valor, tipo });
 
-  financeiro.save((err) => {
-    if (err) {
-      console.error('Erro ao salvar documento:', err);
-      res.status(500).send('Erro ao salvar no banco de dados.');
-    } else {
-      console.log('Documento salvo com sucesso!');
-      res.send('Informação financeira cadastrada com sucesso!');
-    }
-  });
+  try {
+    await financeiro.save();
+    console.log('Documento salvo com sucesso!');
+    res.send('Informação financeira cadastrada com sucesso!');
+  } catch (err) {
+    console.error('Erro ao salvar documento:', err);
+    res.status(500).send('Erro ao salvar no banco de dados.');
+  }
 });
 
 // Rota não encontrada
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-  });
-  
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 // Conecta ao banco e inicia o servidor
 connectDB().then(() => {
